@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restu Rudiansyah — Web Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f0f0f0;
+    --silver: #c8c8c8;
+    --silver-dark: #888;
+    --metal-light: #e2e2e2;
+    --metal-mid: #b0b0b0;
+    --metal-dark: #3a3a3a;
+    --accent: #d4d4d4;
+    --line: rgba(200,200,200,0.15);
+    --glow: rgba(220,220,220,0.08);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    border: 1px solid var(--silver);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-trail {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,200,200,0.3);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.4s ease;
+    mix-blend-mode: difference;
+  }
+
+  /* Grid Lines Background */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Diagonal lines overlay */
+  .diag-lines {
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 30px,
+      rgba(255,255,255,0.012) 30px,
+      rgba(255,255,255,0.012) 31px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Metallic gradient noise texture */
+  .noise {
+    position: fixed;
+    inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ——— HEADER ——— */
+  header {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 6vw 4rem;
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .header-lines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .header-lines::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(200,200,200,0.15) 30%, rgba(200,200,200,0.15) 70%, transparent);
+  }
+
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 6vw;
+    backdrop-filter: blur(20px);
+    background: rgba(10,10,10,0.7);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.2em;
+    color: var(--silver);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--silver-dark);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--silver);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .hero-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--silver-dark);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--white) 0%, var(--silver) 40%, var(--metal-dark) 80%, var(--silver) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+    position: relative;
+  }
+
+  .hero-name::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 4px; top: 4px;
+    background: linear-gradient(135deg, rgba(100,100,100,0.2), transparent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    z-index: -1;
+  }
+
+  .hero-role {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 2.2rem);
+    color: var(--silver-dark);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.9s forwards;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--silver-dark);
+  }
+
+  .meta-item span {
+    width: 20px; height: 1px;
+    background: var(--silver-dark);
+    display: inline-block;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    right: 6vw;
+    writing-mode: vertical-rl;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--metal-dark);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    animation: fadeUp 1s 1.2s forwards;
+    opacity: 0;
+  }
+  .hero-scroll::before {
+    content: '';
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--metal-dark));
+    animation: scrollLine 2s 1.5s infinite;
+  }
+
+  @keyframes scrollLine {
+    0%, 100% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+  }
+
+  /* ——— SECTIONS ——— */
+  section {
+    position: relative;
+    z-index: 10;
+    padding: 6rem 6vw;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--metal-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--metal-dark);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, var(--white), var(--silver-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 3rem;
+  }
+
+  /* ——— ABOUT ——— */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .about-text {
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--silver-dark);
+    font-weight: 300;
+  }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5px;
+    background: var(--line);
+  }
+
+  .stat-box {
+    background: var(--black);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .stat-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,200,200,0.03), transparent);
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  .stat-box:hover { background: #111; }
+  .stat-box:hover::before { opacity: 1; }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--white), var(--silver-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--metal-dark);
+    margin-top: 0.5rem;
+  }
+
+  /* ——— SKILLS ——— */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--line);
+  }
+
+  .skill-card {
+    background: var(--black);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s;
+    cursor: default;
+  }
+
+  .skill-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--silver), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+
+  .skill-card:hover { background: #0f0f0f; }
+  .skill-card:hover::after { transform: translateX(100%); }
+
+  .skill-icon {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--metal-dark);
+    margin-bottom: 1rem;
+  }
+
+  .skill-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: var(--silver);
+    margin-bottom: 1rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(200,200,200,0.12);
+    color: var(--silver-dark);
+    text-transform: uppercase;
+    transition: border-color 0.3s, color 0.3s;
+  }
+
+  .tag:hover { border-color: var(--silver-dark); color: var(--silver); }
+
+  /* ——— EXPERIENCE ——— */
+  .exp-list { display: flex; flex-direction: column; gap: 0; }
+
+  .exp-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    padding: 3rem 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .exp-item:hover { background: rgba(255,255,255,0.01); }
+
+  .exp-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    color: var(--metal-dark);
+    padding-top: 0.2rem;
+  }
+
+  .exp-role {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+
+  .exp-company {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  .exp-details {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .exp-details li {
+    font-size: 0.8rem;
+    color: var(--metal-dark);
+    padding-left: 1.2rem;
+    position: relative;
+    line-height: 1.6;
+  }
+
+  .exp-details li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--metal-dark);
+    opacity: 0.5;
+  }
+
+  /* ——— PROJECTS ——— */
+  .project-card {
+    border: 1px solid var(--line);
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.4s;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,200,200,0.04) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .project-card:hover { border-color: rgba(200,200,200,0.3); }
+  .project-card:hover::before { opacity: 1; }
+
+  .project-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    line-height: 1;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    top: 1rem; right: 2rem;
+    pointer-events: none;
+  }
+
+  .project-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 0.05em;
+    color: var(--silver);
+    margin-bottom: 0.5rem;
+  }
+
+  .project-sub {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--metal-dark);
+    margin-bottom: 2rem;
+  }
+
+  .project-stack {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .stack-item {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    padding: 0.4rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver-dark);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .project-link::after {
+    content: '→';
+    transition: transform 0.3s;
+  }
+
+  .project-link:hover { color: var(--white); }
+  .project-link:hover::after { transform: translateX(4px); }
+
+  /* ——— CONTACT ——— */
+  .contact-section {
+    text-align: center;
+    padding: 8rem 6vw;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02), transparent);
+  }
+
+  .contact-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 9rem);
+    line-height: 0.9;
+    background: linear-gradient(135deg, var(--metal-dark) 0%, var(--silver) 50%, var(--metal-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+  }
+
+  .contact-link {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver-dark);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .contact-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 1px;
+    background: var(--silver);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .contact-link:hover { color: var(--white); }
+  .contact-link:hover::after { transform: scaleX(1); }
+
+  /* ——— FOOTER ——— */
+  footer {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 6vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--metal-dark);
+    text-transform: uppercase;
+  }
+
+  /* ——— ANIMATIONS ——— */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Metallic shimmer line */
+  .shimmer-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--metal-dark) 30%, var(--silver) 50%, var(--metal-dark) 70%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
+    margin: 2rem 0;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .exp-item { grid-template-columns: 1fr; gap: 1rem; }
+    .nav-links { display: none; }
+  }
+
+  /* Marquee */
+  .marquee-wrap {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+  }
+
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marqueeRun 20s linear infinite;
+    will-change: transform;
+  }
+
+  .marquee-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    color: var(--metal-dark);
+    padding-right: 4rem;
+    display: inline-block;
+  }
+
+  .marquee-text .dot {
+    color: var(--silver);
+    padding: 0 2rem;
+  }
+
+  @keyframes marqueeRun {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Horizontal rule with decoration */
+  .metal-hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent);
+    margin: 0;
+  }
+
+  /* Education box */
+  .edu-box {
+    border: 1px solid var(--line);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .edu-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--silver-dark), transparent);
+  }
+
+  .edu-school {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    color: var(--silver);
+  }
+
+  .edu-major {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--metal-dark);
+    margin-top: 0.5rem;
+  }
+
+  .edu-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--metal-dark);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+<div class="grid-bg"></div>
+<div class="diag-lines"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo">RR</a>
+  <ul class="nav-links">
+    <li><a href="#about">Profil</a></li>
+    <li><a href="#skills">Kemampuan</a></li>
+    <li><a href="#experience">Pengalaman</a></li>
+    <li><a href="#projects">Proyek</a></li>
+    <li><a href="#contact">Kontak</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<header>
+  <div class="header-lines"></div>
+  <p class="hero-tag">Web Developer & UI/UX Designer · Garut, Indonesia</p>
+  <h1 class="hero-name" data-text="RESTU RUDIANSYAH">RESTU<br>RUDIANSYAH</h1>
+  <p class="hero-role">Building digital experiences that matter.</p>
+  <div class="hero-meta">
+    <div class="meta-item"><span></span> arcadial076@gmail.com</div>
+    <div class="meta-item"><span></span> +62 895-7933-4459</div>
+    <div class="meta-item"><span></span> RdetHei.github.io</div>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-text">HTML<span class="dot">·</span>CSS<span class="dot">·</span>JAVASCRIPT<span class="dot">·</span>PHP<span class="dot">·</span>LARAVEL<span class="dot">·</span>MYSQL<span class="dot">·</span>FIGMA<span class="dot">·</span>CANVA<span class="dot">·</span>UI/UX DESIGN<span class="dot">·</span>IT SUPPORT<span class="dot">·</span>WEB DEVELOPMENT<span class="dot">·</span></span>
+    <span class="marquee-text">HTML<span class="dot">·</span>CSS<span class="dot">·</span>JAVASCRIPT<span class="dot">·</span>PHP<span class="dot">·</span>LARAVEL<span class="dot">·</span>MYSQL<span class="dot">·</span>FIGMA<span class="dot">·</span>CANVA<span class="dot">·</span>UI/UX DESIGN<span class="dot">·</span>IT SUPPORT<span class="dot">·</span>WEB DEVELOPMENT<span class="dot">·</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">01 / Profil</div>
+  <h2 class="section-title reveal">TENTANG<br>SAYA</h2>
+  <div class="about-grid reveal">
+    <div>
+      <p class="about-text">
+        Lulusan SMK Al-Madani Garut jurusan Rekayasa Perangkat Lunak dengan minat kuat pada pengembangan website dan desain UI/UX. Memiliki pengalaman kerja nyata dalam membangun sistem digital interaktif, pengelolaan database, serta pemeliharaan infrastruktur IT.
+        <br><br>
+        Terbiasa menganalisis kebutuhan klien dan mengubahnya menjadi solusi teknologi yang fungsional dan estetis.
+      </p>
+    </div>
+    <div class="about-stats">
+      <div class="stat-box">
+        <div class="stat-number">2+</div>
+        <div class="stat-label">Tahun Pengalaman</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">Tech Stack</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Proyek Live</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Semangat Belajar</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">02 / Kemampuan</div>
+  <h2 class="section-title reveal">KEMAMPUAN<br>UTAMA</h2>
+  <div class="skills-grid reveal">
+    <div class="skill-card">
+      <div class="skill-icon">01 · Development</div>
+      <div class="skill-name">Web Dev</div>
+      <div class="skill-tags">
+        <span class="tag">HTML</span>
+        <span class="tag">CSS</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">PHP</span>
+        <span class="tag">Laravel</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">02 · Design</div>
+      <div class="skill-name">UI/UX</div>
+      <div class="skill-tags">
+        <span class="tag">Figma</span>
+        <span class="tag">Canva</span>
+        <span class="tag">Desain Grafis</span>
+        <span class="tag">Prototyping</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">03 · Data</div>
+      <div class="skill-name">Database</div>
+      <div class="skill-tags">
+        <span class="tag">MySQL</span>
+        <span class="tag">Microsoft Office</span>
+        <span class="tag">Data Management</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">04 · Support</div>
+      <div class="skill-name">IT Support</div>
+      <div class="skill-tags">
+        <span class="tag">Hardware</span>
+        <span class="tag">Software</span>
+        <span class="tag">Troubleshooting</span>
+        <span class="tag">Networking</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">05 · Soft Skills</div>
+      <div class="skill-name">Kolaborasi</div>
+      <div class="skill-tags">
+        <span class="tag">Problem Solving</span>
+        <span class="tag">Kerja Tim</span>
+        <span class="tag">Komunikasi</span>
+        <span class="tag">Manajemen Waktu</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label">03 / Pengalaman</div>
+  <h2 class="section-title reveal">PENGALAMAN<br>KERJA</h2>
+  <div class="exp-list">
+    <div class="exp-item reveal">
+      <div class="exp-year">2025</div>
+      <div>
+        <div class="exp-role">Web Developer & IT Support</div>
+        <div class="exp-company">PT KLIPAA SOLUSI INDONESIA</div>
+        <ul class="exp-details">
+          <li>Merancang dan membangun website interaktif sesuai dengan kebutuhan spesifik klien.</li>
+          <li>Mengelola database desa dan mengimplementasikan sistem layanan buku tamu digital.</li>
+          <li>Menganalisis kebutuhan digital desa serta merancang alur kerja (workflow) aplikasi.</li>
+          <li>Mempresentasikan hasil pengembangan website dan aplikasi kepada klien di luar kota.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exp-item reveal">
+      <div class="exp-year">2020 — 2021</div>
+      <div>
+        <div class="exp-role">Member Unit IT</div>
+        <div class="exp-company">SMK AL-MADANI GARUT · MASA SEKOLAH</div>
+        <ul class="exp-details">
+          <li>Melakukan perbaikan dan pemeliharaan rutin pada perangkat keras dan lunak komputer.</li>
+          <li>Menangani troubleshooting dasar untuk memastikan kelancaran operasional perangkat sekolah.</li>
+          <li>Melakukan pemeliharaan rutin pada kabel jaringan yang terhubung ke seluruh sekolah.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">04 / Proyek</div>
+  <h2 class="section-title reveal">PROYEK<br>PORTOFOLIO</h2>
+  <div class="reveal">
+    <div class="project-card">
+      <div class="project-num">01</div>
+      <p class="project-sub">PT Klipaa Solusi Indonesia · 2025</p>
+      <h3 class="project-name">Sistem Informasi & Layanan Digital Desa</h3>
+      <div class="project-stack">
+        <span class="stack-item">Laravel</span>
+        <span class="stack-item">MySQL</span>
+        <span class="stack-item">Figma</span>
+        <span class="stack-item">PHP</span>
+      </div>
+      <p style="font-size:0.8rem;color:var(--metal-dark);margin-bottom:2rem;line-height:1.7;">Platform digital untuk layanan informasi desa termasuk sistem buku tamu digital, manajemen data penduduk, dan alur kerja operasional yang terintegrasi.</p>
+      <a href="https://github.com/restu-rudiansyah/desa-digital" class="project-link" target="_blank">Lihat Repositori di GitHub</a>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section>
+  <div class="section-label">05 / Pendidikan</div>
+  <h2 class="section-title reveal">PENDIDIKAN</h2>
+  <div class="edu-box reveal">
+    <div>
+      <div class="edu-school">SMK AL-MADANI GARUT</div>
+      <div class="edu-major">Rekayasa Perangkat Lunak</div>
+    </div>
+    <div class="edu-year">2023 — 2026</div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section">
+  <div class="section-label" style="justify-content:center;margin-bottom:2rem;">06 / Kontak</div>
+  <div class="contact-big reveal">MARI<br>BERKOLABORASI</div>
+  <p class="reveal" style="color:var(--silver-dark);font-size:0.85rem;max-width:500px;margin:0 auto;line-height:1.8;">Terbuka untuk peluang freelance, kolaborasi proyek, atau posisi penuh waktu.</p>
+  <div class="contact-links reveal">
+    <a href="mailto:arcadial076@gmail.com" class="contact-link">Email</a>
+    <a href="tel:+62895793344459" class="contact-link">+62 895-7933-4459</a>
+    <a href="https://RdetHei.github.io" class="contact-link" target="_blank">Portfolio</a>
+    <a href="https://github.com/restu-rudiansyah" class="contact-link" target="_blank">GitHub</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2025 Restu Rudiansyah</span>
+  <span>Web Developer · Garut, Indonesia</span>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const trail = document.getElementById('cursorTrail');
+  let mx = 0, my = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    setTimeout(() => {
+      trail.style.left = mx + 'px';
+      trail.style.top = my + 'px';
+    }, 80);
+  });
+
+  document.querySelectorAll('a, button, .skill-card, .stat-box, .exp-item, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '20px';
+      cursor.style.height = '20px';
+      trail.style.width = '60px';
+      trail.style.height = '60px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px';
+      cursor.style.height = '12px';
+      trail.style.width = '40px';
+      trail.style.height = '40px';
+    });
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
